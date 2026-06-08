@@ -3,15 +3,23 @@
 # Art by Rafael Pimenta
 # Typed in by PUT YOUR NAME HERE
 
+# pyright: reportUnboundVariable=false, reportUndefinedVariable=false, reportGeneralTypeIssues=false
 import time, random, math
+from typing import Any
+
+images: Any
+screen: Any
+sounds: Any
+keyboard: Any
+clock: Any
+Rect: Any
 
 ###############
 ## VARIABLES ##
 ###############
 
-import kivy.core.window as _kw
-WIDTH  = int(_kw.Window.width)  or 720
-HEIGHT = int(_kw.Window.height) or 1612
+WIDTH = 800 #window size
+HEIGHT = 800
 
 #PLAYER variables
 PLAYER_NAME = "Sean" # change this to your name!
@@ -19,8 +27,8 @@ FRIEND1_NAME = "Karen" # change this to a friend's name!
 FRIEND2_NAME = "Leo" # change this to another friend's name!
 current_room = 31 # start room = 31
 
-top_left_x = (WIDTH  - 800) // 2 + 100
-top_left_y = (HEIGHT - 800) // 2 + 50
+top_left_x = 100
+top_left_y = 150
 
 DEMO_OBJECTS = []  # populated in start_game() after images shim is injected
 
@@ -399,13 +407,13 @@ def generate_map():
     room_width = room_data[2]
 
     floor_type = get_floor_type()
-    if current_room in range(1, 21):
+    if current_room <= 20:
         bottom_edge = 2 #soil
         side_edge = 2 #soil
-    if current_room in range(21, 26):
+    elif current_room <= 25:
         bottom_edge = 1 #wall
         side_edge = 2 #soil
-    if current_room > 25:
+    else:
         bottom_edge = 1 #wall
         side_edge = 1 #wall
 
@@ -1206,19 +1214,18 @@ def door_in_room_26():
 ###############
                       
 def draw_energy_air():
-    HUD_Y = HEIGHT - 50
-    box = Rect((20, HUD_Y), (350, 20))
+    box = Rect((20, 765), (350, 20))
     screen.draw.filled_rect(box, BLACK)
-    screen.draw.text("AIR",    (20,  HUD_Y + 1), color=BLUE)
-    screen.draw.text("ENERGY", (180, HUD_Y + 1), color=YELLOW)
+    screen.draw.text("AIR", (20, 766), color=BLUE)
+    screen.draw.text("ENERGY", (180, 766), color=YELLOW)
 
     if air > 0:
-        box = Rect((50, HUD_Y), (air, 20))
-        screen.draw.filled_rect(box, BLUE)
+        box = Rect((50, 765), (air, 20))
+        screen.draw.filled_rect(box, BLUE) # Draw new air bar.
 
     if energy > 0:
-        box = Rect((250, HUD_Y), (energy, 20))
-        screen.draw.filled_rect(box, YELLOW)
+        box = Rect((250, 765), (energy, 20))
+        screen.draw.filled_rect(box, YELLOW) # Draw new energy bar.
 
 def end_the_game(reason):
     global game_over
@@ -1226,9 +1233,8 @@ def end_the_game(reason):
     game_over = True
     sounds.say_mission_fail.play()
     sounds.gameover.play()
-    screen.draw.text("GAME OVER", (WIDTH//2 - 200, HEIGHT//2),
-                     color = "white", fontsize = 128,
-                     shadow = (1, 1), scolor = "black")
+    screen.draw.text("GAME OVER", (120, 400), color = "white",
+                     fontsize = 128, shadow = (1, 1), scolor = "black")
     
 def air_countdown():
     global air, game_over
@@ -1358,10 +1364,8 @@ def hazard_move():
 ###############
 
 def start_game():
-    # Fix 7: populate DEMO_OBJECTS now that the images shim is injected.
     global DEMO_OBJECTS
     DEMO_OBJECTS = [images.floor, images.pillar, images.soil]
-
     generate_map()
     clock.schedule_interval(game_loop, 0.03)
     clock.schedule_interval(adjust_wall_transparency, 0.05)
