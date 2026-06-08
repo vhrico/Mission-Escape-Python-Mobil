@@ -3,16 +3,15 @@
 # Art by Rafael Pimenta
 # Typed in by PUT YOUR NAME HERE
 
-# pyright: reportUnboundVariable=false, reportUndefinedVariable=false, reportGeneralTypeIssues=false
 import time, random, math
-from typing import Any
+from typing import Any, cast
+from pgzero.builtins import images as _images, sounds as _sounds, keyboard as _keyboard, clock as _clock, Rect
 
-images: Any
+images = cast(Any, _images)
+sounds = cast(Any, _sounds)
+keyboard = cast(Any, _keyboard)
+clock = cast(Any, _clock)
 screen: Any
-sounds: Any
-keyboard: Any
-clock: Any
-Rect: Any
 
 ###############
 ## VARIABLES ##
@@ -40,6 +39,7 @@ TILE_SIZE = 30
 
 player_y, player_x = 2, 5
 game_over = False
+game_started = False
 
 PLAYER = {
     "left": [images.spacesuit_left, images.spacesuit_left_1,
@@ -1364,7 +1364,10 @@ def hazard_move():
 ###############
 
 def start_game():
-    global DEMO_OBJECTS
+    global DEMO_OBJECTS, game_started
+    if game_started:
+        return
+    game_started = True
     DEMO_OBJECTS = [images.floor, images.pillar, images.soil]
     generate_map()
     clock.schedule_interval(game_loop, 0.03)
@@ -1375,3 +1378,5 @@ def start_game():
     # A higher number below gives a longer time limit.
     clock.schedule_interval(air_countdown, 5)
     sounds.mission.play() # Intro music
+
+start_game()
