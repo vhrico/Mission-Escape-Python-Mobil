@@ -130,8 +130,9 @@ class _ImageLoader:
         if name.startswith("_"):
             raise AttributeError(name)
         if name not in self._cache:
+            script_dir = os.path.dirname(os.path.abspath(__file__))
             for ext in ("png", "jpg", "gif"):
-                path = os.path.join("images", name + "." + ext)
+                path = os.path.join(script_dir, "images", name + "." + ext)
                 if os.path.exists(path):
                     self._cache[name] = pygame.image.load(path).convert_alpha()
                     break
@@ -167,8 +168,9 @@ class _SoundLoader:
         if name.startswith("_"):
             raise AttributeError(name)
         if name not in self._cache:
+            script_dir = os.path.dirname(os.path.abspath(__file__))
             for ext in ("wav", "ogg", "mp3"):
-                path = os.path.join("sounds", name + "." + ext)
+                path = os.path.join(script_dir, "sounds", name + "." + ext)
                 if os.path.exists(path):
                     try:
                         self._cache[name] = self._Sound(pygame.mixer.Sound(path))
@@ -871,7 +873,7 @@ def show_text(text_to_show, line_number):
     text_lines = [UI_TOP1, UI_TOP2]
     box = Rect((0, text_lines[line_number]), (WIDTH, UI_TEXT_H))
     screen.draw.filled_rect(box, BLACK)
-    screen.draw.text(text_to_show, (20, text_lines[line_number]), color=GREEN, fontsize=FONT_SM)
+    screen.draw.text(text_to_show, (20, text_lines[line_number]), color="GREEN", fontsize=FONT_SM)
 
 ###############
 ##   PROPS   ##
@@ -1251,14 +1253,14 @@ def door_in_room_26():
 def draw_energy_air():
     box = Rect((20, UI_BAR_Y), (int(WIDTH * 0.5), UI_BAR_H))
     screen.draw.filled_rect(box, BLACK)
-    screen.draw.text("AIR",    (20,  UI_BAR_Y), color=BLUE,   fontsize=FONT_SM)
-    screen.draw.text("ENERGY", (int(WIDTH*0.25), UI_BAR_Y), color=YELLOW, fontsize=FONT_SM)
+    screen.draw.text("AIR",    (20,  UI_BAR_Y), color="BLUE",   fontsize=FONT_SM)
+    screen.draw.text("ENERGY", (int(WIDTH*0.25), UI_BAR_Y), color="YELLOW", fontsize=FONT_SM)
     if air > 0:
         box = Rect((int(WIDTH*0.08), UI_BAR_Y), (air, UI_BAR_H))
-        screen.draw.filled_rect(box, BLUE)
+        screen.draw.filled_rect(box, "BLUE")
     if energy > 0:
         box = Rect((int(WIDTH*0.35), UI_BAR_Y), (energy, UI_BAR_H))
-        screen.draw.filled_rect(box, YELLOW)
+        screen.draw.filled_rect(box, "YELLOW")
 
 def end_the_game(reason):
     global game_over
