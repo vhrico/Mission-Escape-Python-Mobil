@@ -68,24 +68,11 @@ clock = Clock()
 ## SCREEN    ##
 ###############
 
-pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
-_info  = pygame.display.Info()
-WIDTH  = _info.current_w
-HEIGHT = _info.current_h
-_surface = pygame.display.set_mode((WIDTH, HEIGHT), pygame.FULLSCREEN)
-pygame.display.set_caption("Escape")
+WIDTH  = 800
+HEIGHT = 800
 
-# UI layout constants derived from screen size
-UI_MARGIN  = int(HEIGHT * 0.02)
-UI_TOP1    = UI_MARGIN
-UI_TOP2    = UI_MARGIN * 3
-UI_INV_TOP = UI_MARGIN * 5
-UI_INV_H   = int(HEIGHT * 0.12)
-UI_BAR_Y   = HEIGHT - int(HEIGHT * 0.04)
-UI_BAR_H   = int(HEIGHT * 0.025)
-UI_TEXT_H  = int(HEIGHT * 0.03)
-FONT_SM    = max(16, int(HEIGHT * 0.025))
-FONT_LG    = max(48, int(HEIGHT * 0.10))
+_surface = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Escape")
 
 class _Screen:
     """Thin wrapper so existing screen.blit / screen.draw.* calls work."""
@@ -219,18 +206,18 @@ keyboard = _Keyboard()
 ##  D-PAD    ##
 ###############
 
-_DPAD_SIZE  = max(50, int(min(WIDTH, HEIGHT) * 0.08))
-_DPAD_GAP   = max(4,  int(min(WIDTH, HEIGHT) * 0.006))
+_DPAD_SIZE  = 60   # each button square
+_DPAD_GAP   = 4
 _DPAD_ALPHA = 160
 
 # Action buttons on the right side
-_BTN_SIZE   = max(44, int(min(WIDTH, HEIGHT) * 0.07))
+_BTN_SIZE   = 50
 _BTN_ALPHA  = 160
 
 def _make_dpad_rects():
     """Build rects for the D-pad and action buttons, anchored to bottom of screen."""
     bx = 20                          # left edge of dpad cluster
-    by = HEIGHT - _DPAD_SIZE * 3 - _DPAD_GAP * 2 - int(HEIGHT * 0.03)
+    by = HEIGHT - _DPAD_SIZE * 3 - _DPAD_GAP * 2 - 10  # top of cluster
 
     s = _DPAD_SIZE
     g = _DPAD_GAP
@@ -243,8 +230,8 @@ def _make_dpad_rects():
     }
 
     # Action buttons (right side)
-    rx = WIDTH - _BTN_SIZE - int(WIDTH * 0.03)
-    ry = HEIGHT - _BTN_SIZE * 3 - _DPAD_GAP * 2 - int(HEIGHT * 0.03)
+    rx = WIDTH - _BTN_SIZE - 20
+    ry = HEIGHT - _BTN_SIZE * 3 - _DPAD_GAP * 2 - 10
     b  = _BTN_SIZE
     rects["g"]     = pygame.Rect(rx, ry,             b, b)   # pick up
     rects["space"] = pygame.Rect(rx, ry + b + g,     b, b)   # examine
@@ -802,9 +789,9 @@ def draw():
     if game_over:
         return
 
-    box = Rect((0, UI_INV_TOP + UI_INV_H), (WIDTH, HEIGHT))
+    box = Rect((0, 150), (800, 600))
     screen.draw.filled_rect(box, RED)
-    box = Rect((0, 0), (WIDTH, int(top_left_y + (room_height - 1) * TILE_SIZE)))
+    box = Rect((0, 0), (800, int(top_left_y + (room_height - 1) * 30)))
     screen.surface.set_clip(box)
     floor_type = get_floor_type()
 
@@ -868,10 +855,10 @@ def adjust_wall_transparency():
 def show_text(text_to_show, line_number):
     if game_over:
         return
-    text_lines = [UI_TOP1, UI_TOP2]
-    box = Rect((0, text_lines[line_number]), (WIDTH, UI_TEXT_H))
+    text_lines = [15, 50]
+    box = Rect((0, text_lines[line_number]), (800, 35))
     screen.draw.filled_rect(box, BLACK)
-    screen.draw.text(text_to_show, (20, text_lines[line_number]), color=GREEN, fontsize=FONT_SM)
+    screen.draw.text(text_to_show, (20, text_lines[line_number]), color=GREEN)
 
 ###############
 ##   PROPS   ##
@@ -955,7 +942,7 @@ def add_object(item):
     props[item][0] = 0
 
 def display_inventory():
-    box = Rect((0, UI_INV_TOP), (WIDTH, UI_INV_H))
+    box = Rect((0, 45), (800, 105))
     screen.draw.filled_rect(box, BLACK)
     if len(in_my_pockets) == 0:
         return
@@ -965,16 +952,13 @@ def display_inventory():
     for item_counter in range(len(list_to_show)):
         item_number = list_to_show[item_counter]
         image = objects[item_number][0]
-        icon_x = 25 + (int(WIDTH * 0.06) * item_counter)
-        icon_y = UI_INV_TOP + int(UI_INV_H * 0.1)
-        screen.blit(image, (icon_x, icon_y))
-    icon_w = int(WIDTH * 0.06)
-    box_left = (selected_marker * icon_w) - 3
-    box = Rect((22 + box_left, UI_INV_TOP + int(UI_INV_H*0.05)), (icon_w - 6, int(UI_INV_H*0.55)))
+        screen.blit(image, (25 + (46 * item_counter), 90))
+    box_left = (selected_marker * 46) - 3
+    box = Rect((22 + box_left, 85), (40, 40))
     screen.draw.rect(box, WHITE)
     item_highlighted = in_my_pockets[selected_item]
     description = objects[item_highlighted][2]
-    screen.draw.text(description, (20, UI_INV_TOP + int(UI_INV_H*0.65)), color="white", fontsize=FONT_SM)
+    screen.draw.text(description, (20, 130), color="white")
 
 def drop_object(old_y, old_x):
     global room_map, props
@@ -1151,9 +1135,9 @@ def use_object():
 
 def game_completion_sequence():
     global launch_frame
-    box = Rect((0, UI_INV_TOP + UI_INV_H), (WIDTH, HEIGHT))
+    box = Rect((0, 150), (800, 600))
     screen.draw.filled_rect(box, (128, 0, 0))
-    box = Rect((0, int(top_left_y) - 30), (WIDTH, int(HEIGHT*0.5)))
+    box = Rect((0, int(top_left_y) - 30), (800, 390))
     screen.surface.set_clip(box)
     for y in range(0, 13):
         for x in range(0, 13):
@@ -1165,8 +1149,8 @@ def game_completion_sequence():
         clock.schedule(game_completion_sequence, 0.25)
     else:
         screen.surface.set_clip(None)
-        screen.draw.text("MISSION",  (int(WIDTH*0.2), int(HEIGHT*0.45)), color="white", fontsize=FONT_LG, shadow=(1,1), scolor="black")
-        screen.draw.text("COMPLETE", (int(WIDTH*0.15), int(HEIGHT*0.57)), color="white", fontsize=FONT_LG, shadow=(1,1), scolor="black")
+        screen.draw.text("MISSION",  (200, 380), color="white", fontsize=128, shadow=(1,1), scolor="black")
+        screen.draw.text("COMPLETE", (145, 480), color="white", fontsize=128, shadow=(1,1), scolor="black")
         sounds.completion.play(); sounds.say_mission_complete.play()
 
 ###############
@@ -1249,15 +1233,15 @@ def door_in_room_26():
 ###############
 
 def draw_energy_air():
-    box = Rect((20, UI_BAR_Y), (int(WIDTH * 0.5), UI_BAR_H))
+    box = Rect((20, 765), (350, 20))
     screen.draw.filled_rect(box, BLACK)
-    screen.draw.text("AIR",    (20,  UI_BAR_Y), color=BLUE,   fontsize=FONT_SM)
-    screen.draw.text("ENERGY", (int(WIDTH*0.25), UI_BAR_Y), color=YELLOW, fontsize=FONT_SM)
+    screen.draw.text("AIR",    (20,  766), color=BLUE)
+    screen.draw.text("ENERGY", (180, 766), color=YELLOW)
     if air > 0:
-        box = Rect((int(WIDTH*0.08), UI_BAR_Y), (air, UI_BAR_H))
+        box = Rect((50, 765), (air, 20))
         screen.draw.filled_rect(box, BLUE)
     if energy > 0:
-        box = Rect((int(WIDTH*0.35), UI_BAR_Y), (energy, UI_BAR_H))
+        box = Rect((250, 765), (energy, 20))
         screen.draw.filled_rect(box, YELLOW)
 
 def end_the_game(reason):
@@ -1265,8 +1249,8 @@ def end_the_game(reason):
     show_text(reason, 1)
     game_over = True
     sounds.say_mission_fail.play(); sounds.gameover.play()
-    screen.draw.text("GAME OVER", (int(WIDTH*0.1), int(HEIGHT*0.45)), color="white",
-                     fontsize=FONT_LG, shadow=(1,1), scolor="black")
+    screen.draw.text("GAME OVER", (120, 400), color="white",
+                     fontsize=128, shadow=(1,1), scolor="black")
 
 def air_countdown():
     global air, game_over
